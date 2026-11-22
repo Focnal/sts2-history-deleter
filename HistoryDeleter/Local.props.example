@@ -1,0 +1,6 @@
+<Project>
+  <!-- 复制本文件为 Local.props（已被 .gitignore 忽略），填入你自己的游戏安装目录。 -->
+  <PropertyGroup>
+    <Sts2Dir>D:\Steam\steamapps\common\Slay the Spire 2</Sts2Dir>
+  </PropertyGroup>
+</Project>

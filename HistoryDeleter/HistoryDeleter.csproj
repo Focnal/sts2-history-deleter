@@ -1,0 +1,66 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AssemblyName>HistoryDeleter</AssemblyName>
+    <RootNamespace>Mono.Sts2.HistoryDeleter</RootNamespace>
+    <EnableDynamicLoading>true</EnableDynamicLoading>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+  </PropertyGroup>
+
+  <!--
+    可选的本机覆盖文件（已在 .gitignore 中忽略）：
+      cp Local.props.example Local.props
+    然后把你自己的游戏路径填进 Local.props 的 <Sts2Dir>。
+  -->
+  <Import Project="$(MSBuildProjectDirectory)\Local.props" Condition="Exists('$(MSBuildProjectDirectory)\Local.props')" />
+
+  <!--
+    杀戮尖塔 2 安装目录。解析优先级：
+      1) Local.props / -p:Sts2Dir=...
+      2) 环境变量 STS2_DIR
+      3) Steam 默认安装路径
+  -->
+  <PropertyGroup>
+    <Sts2Dir Condition="'$(Sts2Dir)' == ''">$(STS2_DIR)</Sts2Dir>
+    <Sts2Dir Condition="'$(Sts2Dir)' == ''">C:\Program Files (x86)\Steam\steamapps\common\Slay the Spire 2</Sts2Dir>
+    <Sts2DataDir>$(Sts2Dir)\data_sts2_windows_x86_64</Sts2DataDir>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="STS2.RitsuLib" Version="0.6.15" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="sts2">
+      <HintPath>$(Sts2DataDir)\sts2.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="0Harmony">
+      <HintPath>$(Sts2DataDir)\0Harmony.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="GodotSharp">
+      <HintPath>$(Sts2DataDir)\GodotSharp.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <!-- 路径不对时给出明确提示，而不是一串找不到 sts2.dll 的报错 -->
+  <Target Name="CheckGameInstall" BeforeTargets="ResolveAssemblyReferences">
+    <Error Condition="!Exists('$(Sts2DataDir)\sts2.dll')"
+           Text="找不到 $(Sts2DataDir)\sts2.dll。请用 -p:Sts2Dir=&quot;&lt;游戏目录&gt;&quot;、环境变量 STS2_DIR，或 Local.props 指定《杀戮尖塔 2》安装目录（当前 Sts2Dir='$(Sts2Dir)'）。" />
+  </Target>
+
+  <!-- 编译后自动部署到 <游戏目录>\mods\HistoryDeleter\；CI 可用 -p:SkipDeploy=true 关闭 -->
+  <Target Name="DeployMod" AfterTargets="Build" Condition="'$(SkipDeploy)' != 'true'">
+    <Message Text="Deploying HistoryDeleter to $(Sts2Dir)\mods\HistoryDeleter" Importance="high" />
+    <MakeDir Directories="$(Sts2Dir)\mods\HistoryDeleter" />
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(Sts2Dir)\mods\HistoryDeleter" />
+    <Copy SourceFiles="$(MSBuildProjectDirectory)\HistoryDeleter.json" DestinationFolder="$(Sts2Dir)\mods\HistoryDeleter" />
+  </Target>
+
+</Project>

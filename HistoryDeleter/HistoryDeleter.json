@@ -1,0 +1,14 @@
+{
+  "id": "HistoryDeleter",
+  "name": "对局记录删除器 / Run History Deleter",
+  "author": "mono",
+  "description": "在游戏历史记录（Run History）页面添加一个删除按钮，可删除当前正在查看的那一局记录（含 Steam 云端副本）。Adds a delete button to the run history screen.",
+  "version": "0.1.0",
+  "has_pck": false,
+  "has_dll": true,
+  "dependencies": [
+    { "id": "STS2-RitsuLib", "min_version": "0.6.15" }
+  ],
+  "affects_gameplay": false,
+  "min_game_version": "0.113.1"
+}
